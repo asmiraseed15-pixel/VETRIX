@@ -1,4 +1,6 @@
 
+
+
 """
 Django settings for config project.
 """
@@ -15,62 +17,28 @@ from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Load local environment variables if .env exists.
-# Vercel environment variables are configured in the dashboard.
+# Load environment variables from VETRIXBackend/.env
 load_dotenv(BASE_DIR / ".env")
 
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "").strip()
-
 
 # =========================================================
 # SECURITY
 # =========================================================
 
-SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "")
+SECRET_KEY = os.environ.get(
+    "DJANGO_SECRET_KEY",
+    "django-insecure-CHANGE-THIS-IN-PRODUCTION",
+)
 
-if not SECRET_KEY:
-    if os.environ.get("VERCEL"):
-        raise RuntimeError(
-            "DJANGO_SECRET_KEY must be configured in Vercel Environment Variables."
-        )
-    SECRET_KEY = "django-insecure-local-development-only-change-me"
-
-DEBUG = os.environ.get("DJANGO_DEBUG", "False").lower() == "true"
+DEBUG = True
 
 ALLOWED_HOSTS = [
     "localhost",
     "127.0.0.1",
     "10.0.2.2",
     "10.53.11.125",
-    "vetrix-u49j.vercel.app",
-    "vetrix-u49j-3dtym01bt-asmiraseed15-1512.vercel.app",
 ]
-
-# Add additional Vercel hostnames through an environment variable if needed.
-extra_hosts = os.environ.get("DJANGO_ALLOWED_HOSTS", "")
-ALLOWED_HOSTS.extend(
-    host.strip()
-    for host in extra_hosts.split(",")
-    if host.strip()
-)
-
-CSRF_TRUSTED_ORIGINS = [
-    "https://vetrix-u49j.vercel.app",
-    "https://vetrix-u49j-3dtym01bt-asmiraseed15-1512.vercel.app",
-]
-
-extra_csrf_origins = os.environ.get("DJANGO_CSRF_TRUSTED_ORIGINS", "")
-CSRF_TRUSTED_ORIGINS.extend(
-    origin.strip()
-    for origin in extra_csrf_origins.split(",")
-    if origin.strip()
-)
-
-# HTTPS is used in production.
-if os.environ.get("VERCEL"):
-    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
-    SESSION_COOKIE_SECURE = True
-    CSRF_COOKIE_SECURE = True
 
 
 # =========================================================
@@ -149,31 +117,12 @@ WSGI_APPLICATION = "config.wsgi.application"
 # DATABASE
 # =========================================================
 
-# Keep SQLite for local development.
-# Configure a persistent production database before deploying
-# if user accounts and learning progress must persist on Vercel.
-
-DATABASE_URL = os.environ.get("DATABASE_URL", "").strip()
-
-if DATABASE_URL:
-    # Requires dj-database-url and the appropriate database driver
-    # to be installed in requirements.txt.
-    import dj_database_url
-
-    DATABASES = {
-        "default": dj_database_url.parse(
-            DATABASE_URL,
-            conn_max_age=0,
-            ssl_require=True,
-        )
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
     }
-else:
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.sqlite3",
-            "NAME": BASE_DIR / "db.sqlite3",
-        }
-    }
+}
 
 
 # =========================================================
@@ -191,6 +140,12 @@ AUTH_PASSWORD_VALIDATORS = [
         "NAME": (
             "django.contrib.auth.password_validation."
             "MinimumLengthValidator"
+        ),
+    },
+    {
+        "NAME": (
+            "django.contrib.auth.password_validation."
+            "CommonPasswordValidator"
         ),
     },
     {
@@ -225,7 +180,7 @@ USE_TZ = True
 # STATIC FILES
 # =========================================================
 
-STATIC_URL = "/static/"
+STATIC_URL = "static/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
@@ -242,13 +197,9 @@ EMAIL_PORT = 587
 
 EMAIL_USE_TLS = True
 
-VETRIX_EMAIL_USER = os.environ.get(
-    "VETRIX_EMAIL_USER", ""
-).strip()
+VETRIX_EMAIL_USER = os.environ.get("VETRIX_EMAIL_USER", "").strip()
 
-VETRIX_EMAIL_PASSWORD = os.environ.get(
-    "VETRIX_EMAIL_PASSWORD", ""
-).strip()
+VETRIX_EMAIL_PASSWORD = os.environ.get("VETRIX_EMAIL_PASSWORD", "").strip()
 
 EMAIL_HOST_USER = VETRIX_EMAIL_USER
 
@@ -261,21 +212,7 @@ DEFAULT_FROM_EMAIL = VETRIX_EMAIL_USER
 # CORS CONFIGURATION
 # =========================================================
 
-# Configure the actual deployed frontend origin in Vercel.
-# Do not leave all origins enabled in production.
-
-CORS_ALLOW_ALL_ORIGINS = (
-    os.environ.get("DJANGO_CORS_ALLOW_ALL", "False").lower()
-    == "true"
-)
-
-CORS_ALLOWED_ORIGINS = [
-    origin.strip()
-    for origin in os.environ.get(
-        "DJANGO_CORS_ALLOWED_ORIGINS", ""
-    ).split(",")
-    if origin.strip()
-]
+CORS_ALLOW_ALL_ORIGINS = True
 
 
 # =========================================================
