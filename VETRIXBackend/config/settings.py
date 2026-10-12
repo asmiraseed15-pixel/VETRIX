@@ -1,6 +1,4 @@
 
-
-
 """
 Django settings for config project.
 """
@@ -9,6 +7,7 @@ import os
 from pathlib import Path
 from datetime import timedelta
 from dotenv import load_dotenv
+import dj_database_url
 
 
 # =========================================================
@@ -31,13 +30,15 @@ SECRET_KEY = os.environ.get(
     "django-insecure-CHANGE-THIS-IN-PRODUCTION",
 )
 
-DEBUG = True
+# Local la True, Vercel la DEBUG=False nu environment variable vechukalam
+DEBUG = os.environ.get("DEBUG", "True") == "True"
 
 ALLOWED_HOSTS = [
     "localhost",
     "127.0.0.1",
     "10.0.2.2",
     "10.53.11.125",
+    ".vercel.app",
 ]
 
 
@@ -117,11 +118,11 @@ WSGI_APPLICATION = "config.wsgi.application"
 # DATABASE
 # =========================================================
 
+# DATABASE_URL irundha PostgreSQL (Neon), illana local SQLite
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
+    "default": dj_database_url.config(
+        default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}"
+    )
 }
 
 
@@ -140,12 +141,6 @@ AUTH_PASSWORD_VALIDATORS = [
         "NAME": (
             "django.contrib.auth.password_validation."
             "MinimumLengthValidator"
-        ),
-    },
-    {
-        "NAME": (
-            "django.contrib.auth.password_validation."
-            "CommonPasswordValidator"
         ),
     },
     {
