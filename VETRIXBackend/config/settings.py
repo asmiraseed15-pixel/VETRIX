@@ -41,6 +41,10 @@ ALLOWED_HOSTS = [
     ".vercel.app",
 ]
 
+# Vercel (HTTPS) la admin login / CSRF work aaga
+CSRF_TRUSTED_ORIGINS = ["https://*.vercel.app"]
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
 
 # =========================================================
 # APPLICATIONS
@@ -121,7 +125,8 @@ WSGI_APPLICATION = "config.wsgi.application"
 # DATABASE_URL irundha PostgreSQL (Neon), illana local SQLite
 DATABASES = {
     "default": dj_database_url.config(
-        default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}"
+        default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
+        conn_max_age=600,
     )
 }
 
