@@ -19,7 +19,7 @@ import { router } from "expo-router";
 // Django backend URL
 // Browser: 127.0.0.1
 // Android emulator: change to http://10.0.2.2:8000
-const API_URL = "http://127.0.0.1:8000";
+const API_URL = "https://vetrix-6hqq.vercel.app";
 
 export default function AuthScreen() {
   const [email, setEmail] = useState("");
